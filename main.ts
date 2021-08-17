@@ -101,9 +101,11 @@ namespace VL53L1X {
      * VL53L1X Initialize
      */
     //% blockId="VL53L1X_INITIALIZE" block="init vl53l1x"
-    export function init(): boolean {
+    export function init(): void {
         // check model ID and module type registers (values specified in datasheet)
-        if (readReg16Bit(IDENTIFICATION__MODEL_ID) != 0xEACC) { return false }
+        if (readReg16Bit(IDENTIFICATION__MODEL_ID) != 0xEACC) {
+            return //false
+        }
         // VL53L1_software_reset() begin
         writeReg(SOFT_RESET, 0x00)
         //delayMicroseconds(100)
@@ -120,7 +122,7 @@ namespace VL53L1X {
         while ((readReg(FIRMWARE__SYSTEM_STATUS) & 0x01) == 0) {
             if (checkTimeoutExpired()) {
                 did_timeout = true
-                return false
+                return //false
             }
         }
         // VL53L1_poll_for_boot_completion() end
@@ -197,7 +199,14 @@ namespace VL53L1X {
         // measurement is started; assumes MM1 and MM2 are disabled
         writeReg16Bit(ALGO__PART_TO_PART_RANGE_OFFSET_MM,
             readReg16Bit(MM_CONFIG__OUTER_OFFSET_MM) * 4)
-        return true;
+        basic.showLeds(`
+            . . . . .
+            . # . # .
+            . . . . .
+            # . . . #
+            . # # # .
+        `)
+        //return true;
     }
 
     function setDistanceMode(mode: DistanceMode): boolean {
