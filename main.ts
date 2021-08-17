@@ -84,10 +84,10 @@ namespace VL53L1X {
     const IDENTIFICATION__MODEL_ID = 0x010F
     const TimingGuard = 4528
     const i2cAddr = 0x29
+    const io_timeout = 500
 
     let calibrated: boolean = false
     let distance_mode: DistanceMode = DistanceMode.Unknown
-    let io_timeout = 0
     let fast_osc_frequency = 1
     let saved_vhv_init = 0
     let saved_vhv_timeout = 0
