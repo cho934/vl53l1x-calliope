@@ -328,6 +328,7 @@ namespace VL53L1X {
         while (!dataReady()) {
             if (checkTimeoutExpired()) {
                 did_timeout = true;
+                basic.showNumber(1)
                 return 0;
             }
         }
