@@ -97,51 +97,42 @@ namespace VL53L1X {
     let osc_calibrate_val = 0
     let timeout_start_ms = 0
 
-    function init(): boolean {
+    /**
+     * VL53L1X Initialize
+     */
+    //% blockId="VL53L1X_INITIALIZE" block="init vl53l1x"
+    export function init(): boolean {
         // check model ID and module type registers (values specified in datasheet)
-        if (readReg16Bit(IDENTIFICATION__MODEL_ID) != 0xEACC) { return false; }
-
+        if (readReg16Bit(IDENTIFICATION__MODEL_ID) != 0xEACC) { return false }
         // VL53L1_software_reset() begin
-
-        writeReg(SOFT_RESET, 0x00);
-        //delayMicroseconds(100);
+        writeReg(SOFT_RESET, 0x00)
+        //delayMicroseconds(100)
         control.waitMicros(100)
-        writeReg(SOFT_RESET, 0x01);
-
+        writeReg(SOFT_RESET, 0x01)
         // give it some time to boot; otherwise the sensor NACKs during the readReg()
         // call below and the Arduino 101 doesn't seem to handle that well
         //delay(1);
         basic.pause(1)
-
         // VL53L1_poll_for_boot_completion() begin
-
-        startTimeout();
-
+        startTimeout()
         // check last_status in case we still get a NACK to try to deal with it correctly
         //while ((readReg(FIRMWARE__SYSTEM_STATUS) & 0x01) == 0 || last_status != 0)...original
         while ((readReg(FIRMWARE__SYSTEM_STATUS) & 0x01) == 0) {
             if (checkTimeoutExpired()) {
-                did_timeout = true;
-                return false;
+                did_timeout = true
+                return false
             }
         }
         // VL53L1_poll_for_boot_completion() end
-
         // VL53L1_software_reset() end
-
         // VL53L1_DataInit() begin
-
         writeReg(PAD_I2C_HV__EXTSUP_CONFIG,
-            readReg(PAD_I2C_HV__EXTSUP_CONFIG) | 0x01);
-
+            readReg(PAD_I2C_HV__EXTSUP_CONFIG) | 0x01)
         // store oscillator info for later use
-        fast_osc_frequency = readReg16Bit(OSC_MEASURED__FAST_OSC__FREQUENCY);
-        osc_calibrate_val = readReg16Bit(RESULT__OSC_CALIBRATE_VAL);
-
+        fast_osc_frequency = readReg16Bit(OSC_MEASURED__FAST_OSC__FREQUENCY)
+        osc_calibrate_val = readReg16Bit(RESULT__OSC_CALIBRATE_VAL)
         // VL53L1_DataInit() end
-
         // VL53L1_StaticInit() begin
-
         // Note that the API does not actually apply the configuration settings below
         // when VL53L1_StaticInit() is called: it keeps a copy of the sensor's
         // register contents in memory and doesn't actually write them until a
@@ -159,30 +150,30 @@ namespace VL53L1X {
         // static config
         // API resets PAD_I2C_HV__EXTSUP_CONFIG here, but maybe we don't want to do
         // that? (seems like it would disable 2V8 mode)
-        writeReg16Bit(DSS_CONFIG__TARGET_TOTAL_RATE_MCPS, TargetRate); // should already be this value after reset
-        writeReg(GPIO__TIO_HV_STATUS, 0x02);
-        writeReg(SIGMA_ESTIMATOR__EFFECTIVE_PULSE_WIDTH_NS, 8); // tuning parm default
-        writeReg(SIGMA_ESTIMATOR__EFFECTIVE_AMBIENT_WIDTH_NS, 16); // tuning parm default
-        writeReg(ALGO__CROSSTALK_COMPENSATION_VALID_HEIGHT_MM, 0x01);
-        writeReg(ALGO__RANGE_IGNORE_VALID_HEIGHT_MM, 0xFF);
-        writeReg(ALGO__RANGE_MIN_CLIP, 0); // tuning parm default
-        writeReg(ALGO__CONSISTENCY_CHECK__TOLERANCE, 2); // tuning parm default
+        writeReg16Bit(DSS_CONFIG__TARGET_TOTAL_RATE_MCPS, TargetRate) // should already be this value after reset
+        writeReg(GPIO__TIO_HV_STATUS, 0x02)
+        writeReg(SIGMA_ESTIMATOR__EFFECTIVE_PULSE_WIDTH_NS, 8) // tuning parm default
+        writeReg(SIGMA_ESTIMATOR__EFFECTIVE_AMBIENT_WIDTH_NS, 16) // tuning parm default
+        writeReg(ALGO__CROSSTALK_COMPENSATION_VALID_HEIGHT_MM, 0x01)
+        writeReg(ALGO__RANGE_IGNORE_VALID_HEIGHT_MM, 0xFF)
+        writeReg(ALGO__RANGE_MIN_CLIP, 0) // tuning parm default
+        writeReg(ALGO__CONSISTENCY_CHECK__TOLERANCE, 2) // tuning parm default
 
         // general config
-        writeReg16Bit(SYSTEM__THRESH_RATE_HIGH, 0x0000);
-        writeReg16Bit(SYSTEM__THRESH_RATE_LOW, 0x0000);
-        writeReg(DSS_CONFIG__APERTURE_ATTENUATION, 0x38);
+        writeReg16Bit(SYSTEM__THRESH_RATE_HIGH, 0x0000)
+        writeReg16Bit(SYSTEM__THRESH_RATE_LOW, 0x0000)
+        writeReg(DSS_CONFIG__APERTURE_ATTENUATION, 0x38)
 
         // timing config
         // most of these settings will be determined later by distance and timing
         // budget configuration
-        writeReg16Bit(RANGE_CONFIG__SIGMA_THRESH, 360); // tuning parm default
-        writeReg16Bit(RANGE_CONFIG__MIN_COUNT_RATE_RTN_LIMIT_MCPS, 192); // tuning parm default
+        writeReg16Bit(RANGE_CONFIG__SIGMA_THRESH, 360) // tuning parm default
+        writeReg16Bit(RANGE_CONFIG__MIN_COUNT_RATE_RTN_LIMIT_MCPS, 192) // tuning parm default
 
         // dynamic config
 
-        writeReg(SYSTEM__GROUPED_PARAMETER_HOLD_0, 0x01);
-        writeReg(SYSTEM__GROUPED_PARAMETER_HOLD_1, 0x01);
+        writeReg(SYSTEM__GROUPED_PARAMETER_HOLD_0, 0x01)
+        writeReg(SYSTEM__GROUPED_PARAMETER_HOLD_1, 0x01)
         writeReg(SD_CONFIG__QUANTIFIER, 2); // tuning parm default
 
         // VL53L1_preset_mode_standard_ranging() end
@@ -190,22 +181,22 @@ namespace VL53L1X {
         // GPH is 0 after reset, but writing GPH0 and GPH1 above seem to set GPH to 1,
         // and things don't seem to work if we don't set GPH back to 0 (which the API
         // does here).
-        writeReg(SYSTEM__GROUPED_PARAMETER_HOLD, 0x00);
-        writeReg(SYSTEM__SEED_CONFIG, 1); // tuning parm default
+        writeReg(SYSTEM__GROUPED_PARAMETER_HOLD, 0x00)
+        writeReg(SYSTEM__SEED_CONFIG, 1) // tuning parm default
         // from VL53L1_config_low_power_auto_mode
-        writeReg(SYSTEM__SEQUENCE_CONFIG, 0x8B); // VHV, PHASECAL, DSS1, RANGE
+        writeReg(SYSTEM__SEQUENCE_CONFIG, 0x8B) // VHV, PHASECAL, DSS1, RANGE
         writeReg16Bit(DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT, 200 << 8);
-        writeReg(DSS_CONFIG__ROI_MODE_CONTROL, 2); // REQUESTED_EFFFECTIVE_SPADS
+        writeReg(DSS_CONFIG__ROI_MODE_CONTROL, 2) // REQUESTED_EFFFECTIVE_SPADS
         // VL53L1_set_preset_mode() end
         // default to long range, 50 ms timing budget
         // note that this is different than what the API defaults to
-        setDistanceMode(DistanceMode.Long);
-        setMeasurementTimingBudget(50000);
+        setDistanceMode(DistanceMode.Long)
+        setMeasurementTimingBudget(50000)
         // VL53L1_StaticInit() end
         // the API triggers this change in VL53L1_init_and_start_range() once a
         // measurement is started; assumes MM1 and MM2 are disabled
         writeReg16Bit(ALGO__PART_TO_PART_RANGE_OFFSET_MM,
-            readReg16Bit(MM_CONFIG__OUTER_OFFSET_MM) * 4);
+            readReg16Bit(MM_CONFIG__OUTER_OFFSET_MM) * 4)
         return true;
     }
 
@@ -340,12 +331,25 @@ namespace VL53L1X {
         return ranging_data.range_mm;
     }
 
-    function readSingle(): number {
+    /**
+     * Read Distance
+     */
+    //% blockId="VL53L1X_DISTANCE" block="distance"
+    export function readSingle(): number {
         writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01); // sys_interrupt_clear_range
         writeReg(SYSTEM__MODE_START, 0x10); // mode_range__single_shot
         return read();
     }
 
+    //% blockId="STRING_DISTANCE" block="s_distance"
+    export function stringDistance(): string {
+        let d = readSingle()
+        let d1 = Math.floor(d / 10)
+        let d2 = Math.floor(d - (d1 * 10))
+        let s = `${d1}` + '.' + `${d2}` + " cm "
+        return s
+    }
+    
     function setupManualCalibration(): void {
         saved_vhv_init = readReg(VHV_CONFIG__INIT);
         saved_vhv_timeout = readReg(VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND);
