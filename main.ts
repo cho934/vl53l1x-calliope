@@ -192,8 +192,8 @@ namespace VL53L1X {
         // VL53L1_set_preset_mode() end
         // default to long range, 50 ms timing budget
         // note that this is different than what the API defaults to
-        ////setDistanceMode(DistanceMode.Long)
-        ////setMeasurementTimingBudget(50000)
+        setDistanceMode(DistanceMode.Long)
+        setMeasurementTimingBudget(50000)
         // VL53L1_StaticInit() end
         // the API triggers this change in VL53L1_init_and_start_range() once a
         // measurement is started; assumes MM1 and MM2 are disabled
@@ -468,17 +468,17 @@ namespace VL53L1X {
     }
 
     function writeReg(reg: number, d: number): void {
-        pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, false)
+        pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, true)
         pins.i2cWriteNumber(i2cAddr, d, NumberFormat.UInt8BE, false)
     }
 
     function writeReg16Bit(reg: number, d: number): void {
-        pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, false)
+        pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, true)
         pins.i2cWriteNumber(i2cAddr, d, NumberFormat.UInt16BE, false)
     }
 
     function writeReg32Bit(reg: number, d: number): void {
-        pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, false)
+        pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, true)
         pins.i2cWriteNumber(i2cAddr, d, NumberFormat.UInt32BE, false)
     }
 
