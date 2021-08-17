@@ -382,7 +382,7 @@ namespace VL53L1X {
         results.dss_actual_effective_spads_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 3)
         results.ambient_count_rate_mcps_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 7)
         results.final_crosstalk_corrected_range_mm_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 13)
-        serial.writeLine("final_crosstalk_corrected_range_mm_sd0 = "+convertToText(VL53L1X.readSingle()))
+        basic.showNumber(results.final_crosstalk_corrected_range_mm_sd0)
         results.peak_signal_count_rate_crosstalk_corrected_mcps_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 15)
     /*
         pins.i2cWriteNumber(i2cAddr, RESULT__RANGE_STATUS, NumberFormat.UInt16BE, false)
