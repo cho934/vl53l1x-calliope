@@ -377,6 +377,13 @@ namespace VL53L1X {
     }
 
     function readResults(): void {
+        results.range_status = readReg(RESULT__RANGE_STATUS)
+        results.stream_count = readReg(RESULT__RANGE_STATUS + 2)
+        results.dss_actual_effective_spads_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 3)
+        results.ambient_count_rate_mcps_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 7)
+        results.final_crosstalk_corrected_range_mm_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 13)
+        results.peak_signal_count_rate_crosstalk_corrected_mcps_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 15)
+    /*
         pins.i2cWriteNumber(i2cAddr, RESULT__RANGE_STATUS, NumberFormat.UInt16BE, false)
         results.range_status = pins.i2cReadNumber(i2cAddr, NumberFormat.UInt8LE, true)
         pins.i2cReadNumber(i2cAddr, NumberFormat.UInt8LE, true)
@@ -387,6 +394,7 @@ namespace VL53L1X {
         pins.i2cReadNumber(i2cAddr, NumberFormat.UInt32LE, true)
         results.final_crosstalk_corrected_range_mm_sd0 = pins.i2cReadNumber(i2cAddr, NumberFormat.UInt16LE, true)
         results.peak_signal_count_rate_crosstalk_corrected_mcps_sd0 = pins.i2cReadNumber(i2cAddr, NumberFormat.UInt16LE, false)
+    */
     }
 
     function updateDSS(): void {
