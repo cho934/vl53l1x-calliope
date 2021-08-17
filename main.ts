@@ -206,6 +206,8 @@ namespace VL53L1X {
             # . . . #
             . # # # .
         `)
+        setDistanceMode(DistanceMode.Long)
+        setMeasurementTimingBudget(50000)
         //return true;
     }
 
