@@ -77,11 +77,11 @@ namespace VL53L1X {
     const SYSTEM__INTERRUPT_CLEAR = 0x0086
     const SYSTEM__MODE_START = 0x0087
     const RESULT__RANGE_STATUS = 0x0089
-    const TargetRate = 0x0A00
     const PHASECAL_RESULT__VCSEL_START = 0x00D8
     const RESULT__OSC_CALIBRATE_VAL = 0x00DE
     const FIRMWARE__SYSTEM_STATUS = 0x00E5
     const IDENTIFICATION__MODEL_ID = 0x010F
+    const TargetRate = 0x0A00
     const TimingGuard = 4528
     const i2cAddr = 0x29
     const io_timeout = 500
@@ -108,12 +108,12 @@ namespace VL53L1X {
         }
         // VL53L1_software_reset() begin
         writeReg(SOFT_RESET, 0x00)
-        //delayMicroseconds(100)
+        //delayMicroseconds(100) ...microsec
         control.waitMicros(100)
         writeReg(SOFT_RESET, 0x01)
         // give it some time to boot; otherwise the sensor NACKs during the readReg()
         // call below and the Arduino 101 doesn't seem to handle that well
-        //delay(1);
+        //delay(1); ....msec
         basic.pause(1)
         // VL53L1_poll_for_boot_completion() begin
         startTimeout()
@@ -206,8 +206,6 @@ namespace VL53L1X {
             # . . . #
             . # # # .
         `)
-        setDistanceMode(DistanceMode.Long)
-        setMeasurementTimingBudget(50000)
         //return true;
     }
 
@@ -265,13 +263,13 @@ namespace VL53L1X {
     function setMeasurementTimingBudget(budget_us: number): boolean {
         // assumes PresetMode is LOWPOWER_AUTONOMOUS
         if (budget_us <= TimingGuard) { return false }
-        let range_config_timeout_us = budget_us -= TimingGuard
+        budget_us -= TimingGuard
+        let range_config_timeout_us = budget_us
         if (range_config_timeout_us > 1100000) { return false } // FDA_MAX_TIMING_BUDGET_US * 2
         range_config_timeout_us /= 2
         // VL53L1_calc_timeout_register_values() begin
-        let macro_period_us
         // "Update Macro Period for Range A VCSEL Period"
-        macro_period_us = calcMacroPeriod(readReg(RANGE_CONFIG__VCSEL_PERIOD_A))
+        let macro_period_us = calcMacroPeriod(readReg(RANGE_CONFIG__VCSEL_PERIOD_A))
         // "Update Phase timeout - uses Timing A"
         // Timeout of 1000 is tuning parm default (TIMED_PHASECAL_CONFIG_TIMEOUT_US_DEFAULT)
         // via VL53L1_get_preset_mode_timing_cfg().
@@ -328,7 +326,7 @@ namespace VL53L1X {
         while (!dataReady()) {
             if (checkTimeoutExpired()) {
                 did_timeout = true;
-                basic.showNumber(1)
+                //basic.showNumber(1)
                 return 0;
             }
         }
