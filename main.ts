@@ -109,12 +109,14 @@ namespace VL53L1X {
         // VL53L1_software_reset() begin
         writeReg(SOFT_RESET, 0x00)
         //delayMicroseconds(100) ...microsec
-        control.waitMicros(100)
+        control.waitMicros(1000)
+        basic.showNumber(readReg(SOFT_RESET))
         writeReg(SOFT_RESET, 0x01)
         // give it some time to boot; otherwise the sensor NACKs during the readReg()
         // call below and the Arduino 101 doesn't seem to handle that well
         //delay(1); ....msec
-        basic.pause(1)
+        basic.pause(10)
+        basic.showNumber(readReg(SOFT_RESET))
         // VL53L1_poll_for_boot_completion() begin
         startTimeout()
         // check last_status in case we still get a NACK to try to deal with it correctly
@@ -380,7 +382,7 @@ namespace VL53L1X {
         results.range_status = readReg(RESULT__RANGE_STATUS)
         //basic.showNumber(results.range_status)
         results.stream_count = readReg(RESULT__RANGE_STATUS + 2)
-        basic.showNumber(results.stream_count)
+        //basic.showNumber(results.stream_count)
         results.dss_actual_effective_spads_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 3)
         results.ambient_count_rate_mcps_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 7)
         results.final_crosstalk_corrected_range_mm_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 13)
