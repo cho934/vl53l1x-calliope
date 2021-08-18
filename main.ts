@@ -378,8 +378,9 @@ namespace VL53L1X {
 
     function readResults(): void {
         results.range_status = readReg(RESULT__RANGE_STATUS)
-        basic.showNumber(results.range_status)
+        //basic.showNumber(results.range_status)
         results.stream_count = readReg(RESULT__RANGE_STATUS + 2)
+        basic.showNumber(results.stream_count)
         results.dss_actual_effective_spads_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 3)
         results.ambient_count_rate_mcps_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 7)
         results.final_crosstalk_corrected_range_mm_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 13)
