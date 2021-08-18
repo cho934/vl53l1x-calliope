@@ -2,9 +2,7 @@
     "name": "vl53l1x-microbit",
     "description": "",
     "dependencies": {
-        "core": "*",
-        "radio": "*",
-        "microphone": "*"
+        "core": "*"
     },
     "files": [
         "main.ts",

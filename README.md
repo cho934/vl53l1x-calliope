@@ -1,5 +1,39 @@
+## vl53l1x-microbit
 
 > Open this page at [https://healthywalk.github.io/vl53l1x-microbit/](https://healthywalk.github.io/vl53l1x-microbit/)
+
+---
+This extension supports VL53L1X Time-of-Flight ranging sensor in MakeCode
+* I2C address 0x29
+
+## Method
+---
+* Initialize
+
+Always run at the beginning
+```
+VL53L1X.init()
+```
+* Get Distance as Number
+```
+VL53L1X.readSingle()
+```
+
+* Get Distance as String
+```
+VL53L1X.stringDistance()
+
+```
+
+## Example
+---
+```
+VL53L1X.init()
+basic.forever(function () {
+    serial.writeLine(VL53L1X.stringDistance())
+})
+```
+
 
 ## Use as Extension
 
@@ -10,22 +44,10 @@ This repository can be added as an **extension** in MakeCode.
 * click on **Extensions** under the gearwheel menu
 * search for **https://github.com/healthywalk/vl53l1x-microbit** and import
 
-## Edit this project ![Build status badge](https://github.com/healthywalk/vl53l1x-microbit/workflows/MakeCode/badge.svg)
+## License
+MIT
 
-To edit this repository in MakeCode.
-
-* open [https://makecode.microbit.org/](https://makecode.microbit.org/)
-* click on **Import** then click on **Import URL**
-* paste **https://github.com/healthywalk/vl53l1x-microbit** and click import
-
-## Blocks preview
-
-This image shows the blocks code from the last commit in master.
-This image may take a few minutes to refresh.
-
-![A rendered view of the blocks](https://github.com/healthywalk/vl53l1x-microbit/raw/master/.github/makecode/blocks.png)
-
-#### Metadata (used for search, rendering)
+## Metadata (used for search, rendering)
 
 * for PXT/microbit
 <script src="https://makecode.com/gh-pages-embed.js"></script><script>makeCodeRender("{{ site.makecode.home_url }}", "{{ site.github.owner_name }}/{{ site.github.repository_name }}");</script>
