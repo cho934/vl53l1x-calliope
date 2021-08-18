@@ -110,13 +110,13 @@ namespace VL53L1X {
         writeReg(SOFT_RESET, 0x00)
         //delayMicroseconds(100) ...microsec
         control.waitMicros(1000)
-        basic.showNumber(readReg(SOFT_RESET))
+        //basic.showNumber(readReg(SOFT_RESET))
         writeReg(SOFT_RESET, 0x01)
         // give it some time to boot; otherwise the sensor NACKs during the readReg()
         // call below and the Arduino 101 doesn't seem to handle that well
         //delay(1); ....msec
         basic.pause(10)
-        basic.showNumber(readReg(SOFT_RESET))
+        //basic.showNumber(readReg(SOFT_RESET))
         // VL53L1_poll_for_boot_completion() begin
         startTimeout()
         // check last_status in case we still get a NACK to try to deal with it correctly
@@ -482,36 +482,47 @@ namespace VL53L1X {
 
     function writeReg(reg: number, d: number): void {
         let tmp = (reg << 16) | (d << 8) | (readReg(reg + 1) & 0xff)
+        basic.pause(1)
         pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
+        basic.pause(1)
     }
 
     function writeReg16Bit(reg: number, d: number): void {
         let tmp = (reg << 16) | d
         pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
+        basic.pause(1)
     }
 
     function writeReg32Bit(reg: number, d: number): void {
         let tmp = (reg << 16) | ((d >> 16) & 0xffff)
         pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
+        basic.pause(1)
         tmp = ((reg + 2) << 16) | (d & 0xffff)
         pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
+        basic.pause(1)
     }
 
     function readReg(reg: number): number {
         pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, false)
+        basic.pause(1)
         let d = pins.i2cReadNumber(i2cAddr, NumberFormat.UInt8BE, false)
+        basic.pause(1)
         return d;
     }
 
     function readReg16Bit(reg: number): number {
         pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, false)
+        basic.pause(1)
         let d = pins.i2cReadNumber(i2cAddr, NumberFormat.UInt16BE, false)
+        basic.pause(1)
         return d;
     }
 
     function readReg32Bit(reg: number): number {
         pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, false)
+        basic.pause(1)
         let d = pins.i2cReadNumber(i2cAddr, NumberFormat.UInt32BE, false)
+        basic.pause(1)
         return d;
     }
 
