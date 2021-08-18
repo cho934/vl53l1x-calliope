@@ -6,11 +6,11 @@
 This extension supports VL53L1X Time-of-Flight ranging sensor in MakeCode
 * I2C address 0x29
 
-## Method
 ---
+## Method
 * Initialize
 
-Always run at the beginning
+> Always run at the beginning
 ```
 VL53L1X.init()
 ```
@@ -27,8 +27,8 @@ VL53L1X.readSingle()
 VL53L1X.stringDistance()
 ```
 
-## Example
 ---
+## Example
 ```
 VL53L1X.init()
 basic.forever(function () {
@@ -36,7 +36,7 @@ basic.forever(function () {
 })
 ```
 
-
+---
 ## Use as Extension
 
 This repository can be added as an **extension** in MakeCode.
@@ -46,9 +46,11 @@ This repository can be added as an **extension** in MakeCode.
 * click on **Extensions** under the gearwheel menu
 * search for **https://github.com/healthywalk/vl53l1x-microbit** and import
 
+---
 ## License
 MIT
 
+---
 ## Metadata (used for search, rendering)
 
 * for PXT/microbit
