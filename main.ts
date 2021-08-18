@@ -104,6 +104,7 @@ namespace VL53L1X {
     export function init(): void {
         // check model ID and module type registers (values specified in datasheet)
         if (readReg16Bit(IDENTIFICATION__MODEL_ID) != 0xEACC) {
+            basic.showString("X")
             return //false
         }
         // VL53L1_software_reset() begin
@@ -125,6 +126,7 @@ namespace VL53L1X {
         while ((readReg(FIRMWARE__SYSTEM_STATUS) & 0x01) == 0) {
             if (checkTimeoutExpired()) {
                 did_timeout = true
+                basic.showString("Y")
                 return //false
             }
         }
