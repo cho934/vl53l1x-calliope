@@ -3,7 +3,7 @@
 > Open this page at [https://healthywalk.github.io/vl53l1x-microbit/](https://healthywalk.github.io/vl53l1x-microbit/)
 
 ---
-This extension supports the VL53L0X time-of-flight ranging sensor in Microbit MakeCode programming.
+This extension supports the VL53L1X time-of-flight ranging sensor in Microbit MakeCode programming.
 * I2C address: 0x29
 
 ---
