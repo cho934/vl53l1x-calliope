@@ -31,7 +31,12 @@ basic.forever(function () {
     serial.writeLine(VL53L1X.stringDistance())
 })
 ```
-
+```
+VL53L1X.init()
+basic.forever(function () {
+    serial.writeLine(VL53L1X.stringDistance())
+})
+```
 ---
 ## Use as Extension
 
