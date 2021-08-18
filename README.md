@@ -10,16 +10,18 @@ This extension supports VL53L1X Time-of-Flight ranging sensor in MakeCode
 ## Method
 * Initialize
 
-   Always run at the beginning
+Always run at the beginning
 ```
 VL53L1X.init()
 ```
+
 
 * Get Distance as Number
 
 ```
 VL53L1X.readSingle()
 ```
+
 
 * Get Distance as String
 
