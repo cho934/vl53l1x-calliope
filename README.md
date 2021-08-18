@@ -12,12 +12,12 @@ This extension supports the VL53L0X time-of-flight ranging sensor in Microbit Ma
 ```
 VL53L1X.init()
 ```
-<br>
+
 * Get Distance as Number
 ```
 VL53L1X.readSingle()
 ```
-<br>
+
 * Get Distance as String
 ```
 VL53L1X.stringDistance()
