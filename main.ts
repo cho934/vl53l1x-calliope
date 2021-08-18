@@ -115,7 +115,7 @@ namespace VL53L1X {
         // give it some time to boot; otherwise the sensor NACKs during the readReg()
         // call below and the Arduino 101 doesn't seem to handle that well
         //delay(1); ....msec
-        basic.pause(10)
+        basic.pause(100)
         //basic.showNumber(readReg(SOFT_RESET))
         // VL53L1_poll_for_boot_completion() begin
         startTimeout()
