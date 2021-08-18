@@ -110,8 +110,8 @@ namespace VL53L1X {
         // VL53L1_software_reset() begin
         writeReg(SOFT_RESET, 0x00)
         //delayMicroseconds(100) ...microsec
-        control.waitMicros(1000)
-        basic.pause(100)
+        //control.waitMicros(1000)
+        basic.pause(1)
         //basic.showNumber(readReg(SOFT_RESET))
         writeReg(SOFT_RESET, 0x01)
         // give it some time to boot; otherwise the sensor NACKs during the readReg()
@@ -126,7 +126,7 @@ namespace VL53L1X {
         while ((readReg(FIRMWARE__SYSTEM_STATUS) & 0x01) == 0) {
             if (checkTimeoutExpired()) {
                 did_timeout = true
-                basic.showString("Y")
+                //basic.showString("Y")
                 return //false
             }
         }
@@ -204,13 +204,6 @@ namespace VL53L1X {
         // measurement is started; assumes MM1 and MM2 are disabled
         writeReg16Bit(ALGO__PART_TO_PART_RANGE_OFFSET_MM,
             readReg16Bit(MM_CONFIG__OUTER_OFFSET_MM) * 4)
-        basic.showLeds(`
-            . . . . .
-            . # . # .
-            . . . . .
-            # . . . #
-            . # # # .
-        `)
         //return true;
     }
 
