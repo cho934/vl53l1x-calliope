@@ -15,14 +15,12 @@ Always run at the beginning
 VL53L1X.init()
 ```
 <br>
-
 * Get Distance as Number
 
 ```
 VL53L1X.readSingle()
 ```
-
-
+<br>
 * Get Distance as String
 
 ```
@@ -48,9 +46,6 @@ This repository can be added as an **extension** in MakeCode.
 * click on **Extensions** under the gearwheel menu
 * search for **https://github.com/healthywalk/vl53l1x-microbit** and import
 
----
-## License
-MIT
 
 ---
 ## Metadata (used for search, rendering)
