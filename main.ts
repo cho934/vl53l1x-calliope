@@ -271,7 +271,8 @@ namespace VL53L1X {
         budget_us -= TimingGuard
         let range_config_timeout_us = budget_us
         if (range_config_timeout_us > 1100000) { return false } // FDA_MAX_TIMING_BUDGET_US * 2
-        range_config_timeout_us /= 2
+        //range_config_timeout_us /= 2
+        range_config_timeout_us = Math.floor(range_config_timeout_us/2)
         // VL53L1_calc_timeout_register_values() begin
         // "Update Macro Period for Range A VCSEL Period"
         let macro_period_us = calcMacroPeriod(readReg(RANGE_CONFIG__VCSEL_PERIOD_A))
@@ -340,7 +341,7 @@ namespace VL53L1X {
             setupManualCalibration();
             calibrated = true;
         }
-        //updateDSS();
+        updateDSS();
         getRangingData();
         writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01); // sys_interrupt_clear_range
         return ranging_data.range_mm;
@@ -413,9 +414,11 @@ namespace VL53L1X {
                 results.ambient_count_rate_mcps_sd0
             if (totalRatePerSpad > 0xFFFF) { totalRatePerSpad = 0xFFFF; }
             totalRatePerSpad <<= 16;
-            totalRatePerSpad /= spadCount;
+            //totalRatePerSpad /= spadCount;
+            totalRatePerSpad = Math.floor(totalRatePerSpad / spadCount)
             if (totalRatePerSpad != 0) {
-                let requiredSpads = (TargetRate << 16) / totalRatePerSpad;
+                //let requiredSpads = (TargetRate << 16) / totalRatePerSpad;
+                let requiredSpads = Math.floor((TargetRate << 16) / totalRatePerSpad)
                 if (requiredSpads > 0xFFFF) { requiredSpads = 0xFFFF; }
                 writeReg16Bit(DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT, requiredSpads);
                 return;
@@ -426,7 +429,8 @@ namespace VL53L1X {
 
     function getRangingData(): void {
         let range = results.final_crosstalk_corrected_range_mm_sd0
-        ranging_data.range_mm = (range * 2011 + 0x0400) / 0x0800;
+        //ranging_data.range_mm = (range * 2011 + 0x0400) / 0x0800;
+        ranging_data.range_mm = Math.floor((range * 2011 + 0x0400) / 0x0800)
         switch (results.range_status) {
             case 17: // MULTCLIPFAIL
             case 2: // VCSELWATCHDOGTESTFAILURE
@@ -542,11 +546,11 @@ namespace VL53L1X {
     }
 
     function timeoutMicrosecondsToMclks(timeout_us: number, macro_period_us: number): number {
-        return ((timeout_us << 12) + (macro_period_us >> 1)) / macro_period_us
+        return Math.floor(((timeout_us << 12) + (macro_period_us >> 1)) / macro_period_us)
     }
 
     function calcMacroPeriod(vcsel_period: number): number {
-        let pll_period_us = (0x01 << 30) / fast_osc_frequency;
+        let pll_period_us = Math.floor((0x01 << 30) / fast_osc_frequency);
         let vcsel_period_pclks = (vcsel_period + 1) << 1;
 
         let macro_period_us = 2304 * pll_period_us;
