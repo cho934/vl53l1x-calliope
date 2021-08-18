@@ -340,7 +340,7 @@ namespace VL53L1X {
             setupManualCalibration();
             calibrated = true;
         }
-        updateDSS();
+        //updateDSS();
         getRangingData();
         writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01); // sys_interrupt_clear_range
         return ranging_data.range_mm;
