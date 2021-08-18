@@ -104,7 +104,7 @@ namespace VL53L1X {
     export function init(): void {
         // check model ID and module type registers (values specified in datasheet)
         if (readReg16Bit(IDENTIFICATION__MODEL_ID) != 0xEACC) {
-            basic.showString("X")
+            //basic.showString("X")
             return //false
         }
         // VL53L1_software_reset() begin
@@ -112,13 +112,13 @@ namespace VL53L1X {
         //delayMicroseconds(100) ...microsec
         control.waitMicros(1000)
         basic.pause(100)
-        basic.showNumber(readReg(SOFT_RESET))
+        //basic.showNumber(readReg(SOFT_RESET))
         writeReg(SOFT_RESET, 0x01)
         // give it some time to boot; otherwise the sensor NACKs during the readReg()
         // call below and the Arduino 101 doesn't seem to handle that well
         //delay(1); ....msec
         basic.pause(100)
-        basic.showNumber(readReg(SOFT_RESET))
+        //basic.showNumber(readReg(SOFT_RESET))
         // VL53L1_poll_for_boot_completion() begin
         startTimeout()
         // check last_status in case we still get a NACK to try to deal with it correctly
