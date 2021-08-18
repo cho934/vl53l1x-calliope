@@ -110,6 +110,7 @@ namespace VL53L1X {
         writeReg(SOFT_RESET, 0x00)
         //delayMicroseconds(100) ...microsec
         control.waitMicros(1000)
+        basic.pause(100)
         //basic.showNumber(readReg(SOFT_RESET))
         writeReg(SOFT_RESET, 0x01)
         // give it some time to boot; otherwise the sensor NACKs during the readReg()
