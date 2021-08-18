@@ -16,16 +16,19 @@ VL53L1X.init()
 ```
 
 * Get Distance as Number
+
 ```
 VL53L1X.readSingle()
 ```
 
 * Get Distance as String
+
 ```
 VL53L1X.stringDistance()
 ```
 
 ## Example
+---
 ```
 VL53L1X.init()
 basic.forever(function () {
