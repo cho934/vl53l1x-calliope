@@ -7,7 +7,7 @@ This extension supports the VL53L0X time-of-flight ranging sensor in Microbit Ma
 * I2C address: 0x29
 
 ---
-## Method
+## Methods
 * Initialize
 
 Always run at the beginning
