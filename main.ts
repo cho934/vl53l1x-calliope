@@ -419,7 +419,8 @@ namespace VL53L1X {
             if (totalRatePerSpad != 0) {
                 //let requiredSpads = (TargetRate << 16) / totalRatePerSpad;
                 let requiredSpads = Math.floor((TargetRate << 16) / totalRatePerSpad)
-                if (requiredSpads > 0xFFFF) { requiredSpads = 0xFFFF; }
+                //if (requiredSpads > 0xFFFF) { requiredSpads = 0xFFFF; }
+                if (requiredSpads > 0xFFFF || requiredSpads<0) { requiredSpads = 0xFFFF; }
                 writeReg16Bit(DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT, requiredSpads);
                 return;
             }
