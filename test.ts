@@ -1,1 +1,4 @@
-// tests go here; this will not be compiled when this package is used as an extension.
+VL53L1X.init()
+basic.forever(function () {
+    serial.writeLine(VL53L1X.stringDistance())
+})
