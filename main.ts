@@ -485,47 +485,36 @@ namespace VL53L1X {
 
     function writeReg(reg: number, d: number): void {
         let tmp = (reg << 16) | (d << 8) | (readReg(reg + 1) & 0xff)
-        basic.pause(1)
         pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
-        basic.pause(1)
     }
 
     function writeReg16Bit(reg: number, d: number): void {
         let tmp = (reg << 16) | d
         pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
-        basic.pause(1)
     }
 
     function writeReg32Bit(reg: number, d: number): void {
         let tmp = (reg << 16) | ((d >> 16) & 0xffff)
         pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
-        basic.pause(1)
         tmp = ((reg + 2) << 16) | (d & 0xffff)
         pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
-        basic.pause(1)
     }
 
     function readReg(reg: number): number {
         pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, false)
-        basic.pause(1)
         let d = pins.i2cReadNumber(i2cAddr, NumberFormat.UInt8BE, false)
-        basic.pause(1)
         return d;
     }
 
     function readReg16Bit(reg: number): number {
         pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, false)
-        basic.pause(1)
         let d = pins.i2cReadNumber(i2cAddr, NumberFormat.UInt16BE, false)
-        basic.pause(1)
         return d;
     }
 
     function readReg32Bit(reg: number): number {
         pins.i2cWriteNumber(i2cAddr, reg, NumberFormat.UInt16BE, false)
-        basic.pause(1)
         let d = pins.i2cReadNumber(i2cAddr, NumberFormat.UInt32BE, false)
-        basic.pause(1)
         return d;
     }
 
