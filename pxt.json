@@ -1,6 +1,7 @@
 {
     "name": "vl53l1x-microbit",
-    "description": "",
+    "version": "1.0.0",
+    "description": "VL53L1X Time-of-Flight ranging sensor in Microbit MakeCode",
     "dependencies": {
         "core": "*"
     },
