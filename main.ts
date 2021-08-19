@@ -374,10 +374,14 @@ namespace VL53L1X {
     }
 
     function writeReg32Bit(reg: number, d: number): void {
-        let tmp = (reg << 16) | ((d >> 16) & 0xffff)
-        pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
-        tmp = ((reg + 2) << 16) | (d & 0xffff)
-        pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
+        //let tmp = (reg << 16) | ((d >> 16) & 0xffff)
+        //pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
+        //tmp = ((reg + 2) << 16) | (d & 0xffff)
+        //pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
+        let buf = pins.createBuffer(6);
+        buf.setNumber(NumberFormat.UInt16BE, 0, reg)
+        buf.setNumber(NumberFormat.UInt32BE, 2, d)
+        pins.i2cWriteBuffer(i2cAddr, buf, false)
     }
 
     function readReg(reg: number): number {
