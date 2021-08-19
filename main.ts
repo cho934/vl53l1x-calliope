@@ -362,7 +362,7 @@ namespace VL53L1X {
     function writeReg(reg: number, d: number): void {
         //let tmp = (reg << 16) | (d << 8) | (readReg(reg + 1) & 0xff)
         //pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
-        let buf = pins.createBuffer(16);
+        let buf = pins.createBuffer(3);
         buf.setNumber(NumberFormat.UInt16BE, 0, reg)
         buf.setNumber(NumberFormat.UInt8BE, 2, d)
         pins.i2cWriteBuffer(i2cAddr, buf, false)
