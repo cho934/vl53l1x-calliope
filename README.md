@@ -36,7 +36,6 @@ VL53L1X.readSingle()
 VL53L1X.stringDistance()
 ```
 
-
 ## Example
 ```blocks
 VL53L1X.init()
@@ -45,6 +44,7 @@ basic.forever(function () {
 })
 ```
 
+---
 ```blocks
 VL53L1X.init()
 basic.forever(function () {
