@@ -4,7 +4,6 @@
 
 ## Summary
 This extension supports the __STMicroelectronics VL53L1X__ time-of-flight ranging sensor in __Microbit MakeCode__ programming.
-* I2C address: 0x29
 
 ## Pin connection
 
@@ -16,8 +15,8 @@ P20  |  SDA
 GND (0V)  |  GND
 NC  |  XSHUT
 NC  |  GPIO1
-
-VL53L1X Breakout must be 3.3V drivable
+* VL53L1X Breakout must be 3.3V drivable
+* I2C address: 0x29
 
 
 ## Methods
