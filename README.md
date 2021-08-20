@@ -36,19 +36,11 @@ VL53L1X.readSingle()
 VL53L1X.stringDistance()
 ```
 
-## Example
+## Examples
 ```blocks
 VL53L1X.init()
 basic.forever(function () {
     serial.writeLine(VL53L1X.readSingle())
-})
-```
-
----
-```blocks
-VL53L1X.init()
-basic.forever(function () {
-    serial.writeLine(convertToText(VL53L1X.stringDistance()))
 })
 ```
 
