@@ -7,6 +7,7 @@ This extension supports the __STMicroelectronics VL53L1X__ time-of-flight rangin
 * I2C address: 0x29
 
 ## Pin connection
+
 Microbit | VL53L1X breakout
 -------- | ----------------
 P19  |  SCL
@@ -15,6 +16,7 @@ P20  |  SDA
 GND (0V)  |  GND
 NC  |  XSHUT
 NC  |  GPIO1
+
 VL53L1X Breakout must be 3.3V drivable
 
 
