@@ -15,6 +15,7 @@ P20  |  SDA
 GND (0V)  |  GND
 NC  |  XSHUT
 NC  |  GPIO1
+
 * VL53L1X Breakout must be 3.3V drivable
 * I2C address: 0x29
 
