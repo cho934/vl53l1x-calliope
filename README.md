@@ -3,18 +3,18 @@
 > Open this page at [https://healthywalk.github.io/vl53l1x-microbit/](https://healthywalk.github.io/vl53l1x-microbit/)
 
 ## Summary
-This extension supports the STMicroelectronics VL53L1X time-of-flight ranging sensor in Microbit MakeCode programming.
+This extension supports the __STMicroelectronics VL53L1X__ time-of-flight ranging sensor in __Microbit MakeCode__ programming.
 * I2C address: 0x29
 
 ## Pin connection
-|  Microbit  |  VL53L1X breakout  |
-| :----: | :----: |
-|  P19  |  SCL  |
-|  P20  |  SDA  |
-|  3V  |  +V (VIN, Vcc)  |
-|  GND (0V)  |  GND  |
-|  NC  |  XSHUT  |
-|  NC  |  GPIO1  |
+Microbit  |  VL53L1X breakout
+:----: | :----:
+P19  |  SCL
+P20  |  SDA
+3V  |  +V (VIN, Vcc)
+GND (0V)  |  GND
+NC  |  XSHUT
+NC  |  GPIO1
 VL53L1X Breakout must be 3.3V drivable
 
 
