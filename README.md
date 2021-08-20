@@ -2,11 +2,22 @@
 
 > Open this page at [https://healthywalk.github.io/vl53l1x-microbit/](https://healthywalk.github.io/vl53l1x-microbit/)
 
----
-This extension supports the VL53L1X time-of-flight ranging sensor in Microbit MakeCode programming.
+## Summary
+This extension supports the STMicroelectronics VL53L1X time-of-flight ranging sensor in Microbit MakeCode programming.
 * I2C address: 0x29
 
----
+## Pin connection
+|  Microbit  |  VL53L1X breakout  |
+| :----: | :----: |
+|  P19  |  SCL  |
+|  P20  |  SDA  |
+|  3V  |  +V (VIN, Vcc)  |
+|  GND (0V)  |  GND  |
+|  NC  |  XSHUT  |
+|  NC  |  GPIO1  |
+VL53L1X Breakout must be 3.3V drivable
+
+
 ## Methods
 * Initialize    (Always run at the beginning)
 ```
@@ -23,21 +34,21 @@ VL53L1X.readSingle()
 VL53L1X.stringDistance()
 ```
 
----
+
 ## Example
 ```blocks
 VL53L1X.init()
 basic.forever(function () {
-    serial.writeLine(VL53L1X.stringDistance())
+    serial.writeLine(VL53L1X.readSingle())
 })
 ```
-```
+```blocks
 VL53L1X.init()
 basic.forever(function () {
-    serial.writeLine(VL53L1X.stringDistance())
+    serial.writeLine(convertToText(VL53L1X.stringDistance()))
 })
 ```
----
+
 ## Use as Extension
 
 This repository can be added as an **extension** in MakeCode.
@@ -48,7 +59,6 @@ This repository can be added as an **extension** in MakeCode.
 * search for **https://github.com/healthywalk/vl53l1x-microbit** and import
 
 
----
 ## Metadata (used for search, rendering)
 
 * for PXT/microbit
