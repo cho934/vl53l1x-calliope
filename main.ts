@@ -204,7 +204,6 @@ namespace VL53L1X {
             calibrated = true;
         }
         updateDSS();
-        //getRangingData();
         let range = results.final_crosstalk_corrected_range_mm_sd0
         ranging_data.range_mm = Math.floor((range * 2011 + 0x0400) / 0x0800)
         writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01); // sys_interrupt_clear_range
@@ -268,61 +267,6 @@ namespace VL53L1X {
             }
         }
         writeReg16Bit(DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT, 0x8000);
-    }
-
-    function getRangingData(): void {
-        let range = results.final_crosstalk_corrected_range_mm_sd0
-        ranging_data.range_mm = Math.floor((range * 2011 + 0x0400) / 0x0800)
-        switch (results.range_status) {
-            case 17: // MULTCLIPFAIL
-            case 2: // VCSELWATCHDOGTESTFAILURE
-            case 1: // VCSELCONTINUITYTESTFAILURE
-            case 3: // NOVHVVALUEFOUND
-                ranging_data.range_status = RangeStatus.HardwareFail
-                break
-            case 13: // USERROICLIP
-                ranging_data.range_status = RangeStatus.MinRangeFail
-                break
-            case 18: // GPHSTREAMCOUNT0READY
-                ranging_data.range_status = RangeStatus.SynchronizationInt
-                break
-            case 5: // RANGEPHASECHECK
-                ranging_data.range_status = RangeStatus.OutOfBoundsFail
-                break
-            case 4: // MSRCNOTARGET
-                ranging_data.range_status = RangeStatus.SignalFail
-                break
-            case 6: // SIGMATHRESHOLDCHECK
-                ranging_data.range_status = RangeStatus.SigmaFail
-                break
-            case 7: // PHASECONSISTENCY
-                ranging_data.range_status = RangeStatus.WrapTargetFail
-                break
-            case 12: // RANGEIGNORETHRESHOLD
-                ranging_data.range_status = RangeStatus.XtalkSignalFail
-                break
-            case 8: // MINCLIP
-                ranging_data.range_status = RangeStatus.RangeValidMinRangeClipped
-                break
-            case 9: // RANGECOMPLETE
-                if (results.stream_count == 0) {
-                    ranging_data.range_status = RangeStatus.RangeValidNoWrapCheckFail
-                } else {
-                    ranging_data.range_status = RangeStatus.RangeValid
-                }
-                break
-            default:
-                ranging_data.range_status = RangeStatus.None
-        }
-
-        ranging_data.peak_signal_count_rate_MCPS =
-            countRateFixedToFloat(results.peak_signal_count_rate_crosstalk_corrected_mcps_sd0);
-        ranging_data.ambient_count_rate_MCPS =
-            countRateFixedToFloat(results.ambient_count_rate_mcps_sd0);
-   }
-
-    function countRateFixedToFloat(count_rate_fixed: number): number {
-         return count_rate_fixed / (1 << 7)
     }
 
     function writeReg(reg: number, d: number): void {
