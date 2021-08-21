@@ -306,10 +306,6 @@ namespace VL53L1X {
         return d;
     }
 
-    function decodeTimeout(reg_val: number): number {
-        return ((reg_val & 0xFF) << (reg_val >> 8)) + 1
-    }
-
     function encodeTimeout(timeout_mclks: number): number {
         let ls_byte = 0
         let ms_byte = 0
@@ -323,10 +319,6 @@ namespace VL53L1X {
         } else {
             return 0
         }
-    }
-
-    function timeoutMclksToMicroseconds(timeout_mclks: number, macro_period_us: number): number {
-        return (timeout_mclks * macro_period_us + 0x800) >> 12;
     }
 
     function timeoutMicrosecondsToMclks(timeout_us: number, macro_period_us: number): number {
