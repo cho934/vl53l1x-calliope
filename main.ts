@@ -204,7 +204,9 @@ namespace VL53L1X {
             calibrated = true;
         }
         updateDSS();
-        getRangingData();
+        //getRangingData();
+        let range = results.final_crosstalk_corrected_range_mm_sd0
+        ranging_data.range_mm = Math.floor((range * 2011 + 0x0400) / 0x0800)
         writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01); // sys_interrupt_clear_range
         return ranging_data.range_mm;
     }
