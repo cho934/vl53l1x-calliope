@@ -4,12 +4,12 @@
 //% weight=90 color=#1eb0f0 icon="\uf0b2"
 namespace VL53L1X {
     type ResultBuffer = {
-        range_status?: number
-        stream_count?: number
-        dss_actual_effective_spads_sd0?: number
-        ambient_count_rate_mcps_sd0?: number
-        final_crosstalk_corrected_range_mm_sd0?: number
-        peak_signal_count_rate_crosstalk_corrected_mcps_sd0?: number
+        range_status: number
+        stream_count: number
+        dss_actual_effective_spads_sd0: number
+        ambient_count_rate_mcps_sd0: number
+        final_crosstalk_corrected_range_mm_sd0: number
+        peak_signal_count_rate_crosstalk_corrected_mcps_sd0: number
     }
     enum RangeStatus {
         RangeValid = 0,
@@ -31,7 +31,6 @@ namespace VL53L1X {
         peak_signal_count_rate_MCPS?: number
         ambient_count_rate_MCPS?: number
     }
-    enum DistanceMode { Short, Medium, Long, Unknown }
     const SOFT_RESET = 0x0000
     const OSC_MEASURED__FAST_OSC__FREQUENCY = 0x0006
     const VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND = 0x0008
@@ -87,12 +86,19 @@ namespace VL53L1X {
     const io_timeout = 500
 
     let calibrated: boolean = false
-    let distance_mode: DistanceMode = DistanceMode.Unknown
+    //let distance_mode: DistanceMode = DistanceMode.Unknown
     let fast_osc_frequency = 1
     let saved_vhv_init = 0
     let saved_vhv_timeout = 0
     let did_timeout = false
-    let results: ResultBuffer = {}
+    let results: ResultBuffer = {
+        range_status:0,
+        stream_count:0,
+        dss_actual_effective_spads_sd0:0,
+        ambient_count_rate_mcps_sd0:0,
+        final_crosstalk_corrected_range_mm_sd0:0,
+        peak_signal_count_rate_crosstalk_corrected_mcps_sd0:0
+    }
     let ranging_data: RangingData = {}
     let osc_calibrate_val = 0
     let timeout_start_ms = 0
@@ -145,51 +151,20 @@ namespace VL53L1X {
         writeReg(SYSTEM__SEQUENCE_CONFIG, 0x8B) // VHV, PHASECAL, DSS1, RANGE
         writeReg16Bit(DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT, 200 << 8);
         writeReg(DSS_CONFIG__ROI_MODE_CONTROL, 2) // REQUESTED_EFFFECTIVE_SPADS
-        setDistanceMode(DistanceMode.Long)
+        setLongDistanceMode()
         setMeasurementTimingBudget(50000)
         writeReg16Bit(ALGO__PART_TO_PART_RANGE_OFFSET_MM,
             readReg16Bit(MM_CONFIG__OUTER_OFFSET_MM) * 4)
     }
 
-    function setDistanceMode(mode: DistanceMode): boolean {
-        let budget_us = getMeasurementTimingBudget()
-        switch (mode) {
-            case DistanceMode.Short:
-                writeReg(RANGE_CONFIG__VCSEL_PERIOD_A, 0x07)
-                writeReg(RANGE_CONFIG__VCSEL_PERIOD_B, 0x05)
-                writeReg(RANGE_CONFIG__VALID_PHASE_HIGH, 0x38)
-
-                writeReg(SD_CONFIG__WOI_SD0, 0x07)
-                writeReg(SD_CONFIG__WOI_SD1, 0x05)
-                writeReg(SD_CONFIG__INITIAL_PHASE_SD0, 6) // tuning parm default
-                writeReg(SD_CONFIG__INITIAL_PHASE_SD1, 6) // tuning parm default
-                break;
-            case DistanceMode.Medium:
-                writeReg(RANGE_CONFIG__VCSEL_PERIOD_A, 0x0B)
-                writeReg(RANGE_CONFIG__VCSEL_PERIOD_B, 0x09)
-                writeReg(RANGE_CONFIG__VALID_PHASE_HIGH, 0x78)
-
-                writeReg(SD_CONFIG__WOI_SD0, 0x0B)
-                writeReg(SD_CONFIG__WOI_SD1, 0x09)
-                writeReg(SD_CONFIG__INITIAL_PHASE_SD0, 10) // tuning parm default
-                writeReg(SD_CONFIG__INITIAL_PHASE_SD1, 10) // tuning parm default
-                break;
-            case DistanceMode.Long: // long
-                writeReg(RANGE_CONFIG__VCSEL_PERIOD_A, 0x0F)
-                writeReg(RANGE_CONFIG__VCSEL_PERIOD_B, 0x0D)
-                writeReg(RANGE_CONFIG__VALID_PHASE_HIGH, 0xB8)
-
-                writeReg(SD_CONFIG__WOI_SD0, 0x0F)
-                writeReg(SD_CONFIG__WOI_SD1, 0x0D)
-                writeReg(SD_CONFIG__INITIAL_PHASE_SD0, 14) // tuning parm default
-                writeReg(SD_CONFIG__INITIAL_PHASE_SD1, 14) // tuning parm default
-                break
-            default:
-                return false
-        }
-        setMeasurementTimingBudget(budget_us)
-        distance_mode = mode
-        return true;
+    function setLongDistanceMode(): void {
+        writeReg(RANGE_CONFIG__VCSEL_PERIOD_A, 0x0F)
+        writeReg(RANGE_CONFIG__VCSEL_PERIOD_B, 0x0D)
+        writeReg(RANGE_CONFIG__VALID_PHASE_HIGH, 0xB8)
+        writeReg(SD_CONFIG__WOI_SD0, 0x0F)
+        writeReg(SD_CONFIG__WOI_SD1, 0x0D)
+        writeReg(SD_CONFIG__INITIAL_PHASE_SD0, 14) // tuning parm default
+        writeReg(SD_CONFIG__INITIAL_PHASE_SD1, 14) // tuning parm default
     }
 
     function setMeasurementTimingBudget(budget_us: number): boolean {
@@ -213,19 +188,6 @@ namespace VL53L1X {
         writeReg16Bit(RANGE_CONFIG__TIMEOUT_MACROP_B, encodeTimeout(
             timeoutMicrosecondsToMclks(range_config_timeout_us, macro_period_us)))
         return true
-    }
-
-    function getMeasurementTimingBudget(): number {
-        let macro_period_us = calcMacroPeriod(readReg(RANGE_CONFIG__VCSEL_PERIOD_A));
-        let range_config_timeout_us = timeoutMclksToMicroseconds(decodeTimeout(
-            readReg16Bit(RANGE_CONFIG__TIMEOUT_MACROP_A)), macro_period_us);
-        return 2 * range_config_timeout_us + TimingGuard;
-    }
-
-    function timeoutOccurred(): boolean {
-        let tmp: boolean = did_timeout
-        did_timeout = false
-        return tmp
     }
 
     function read(): number {
@@ -285,14 +247,6 @@ namespace VL53L1X {
         results.ambient_count_rate_mcps_sd0 = buf.getNumber(NumberFormat.UInt16BE, 7)
         results.final_crosstalk_corrected_range_mm_sd0 = buf.getNumber(NumberFormat.UInt16BE, 13)
         results.peak_signal_count_rate_crosstalk_corrected_mcps_sd0 = buf.getNumber(NumberFormat.UInt16BE, 15)
-        /*
-        results.range_status = readReg(RESULT__RANGE_STATUS)
-        results.stream_count = readReg(RESULT__RANGE_STATUS + 2)
-        results.dss_actual_effective_spads_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 3)
-        results.ambient_count_rate_mcps_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 7)
-        results.final_crosstalk_corrected_range_mm_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 13)
-        results.peak_signal_count_rate_crosstalk_corrected_mcps_sd0 = readReg16Bit(RESULT__RANGE_STATUS + 15)
-        */
     }
 
     function updateDSS(): void {
@@ -370,8 +324,6 @@ namespace VL53L1X {
     }
 
     function writeReg(reg: number, d: number): void {
-        //let tmp = (reg << 16) | (d << 8) | (readReg(reg + 1) & 0xff)
-        //pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
         let buf = pins.createBuffer(3);
         buf.setNumber(NumberFormat.UInt16BE, 0, reg)
         buf.setNumber(NumberFormat.UInt8BE, 2, d)
@@ -384,10 +336,6 @@ namespace VL53L1X {
     }
 
     function writeReg32Bit(reg: number, d: number): void {
-        //let tmp = (reg << 16) | ((d >> 16) & 0xffff)
-        //pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
-        //tmp = ((reg + 2) << 16) | (d & 0xffff)
-        //pins.i2cWriteNumber(i2cAddr, tmp, NumberFormat.UInt32BE, false)
         let buf = pins.createBuffer(6);
         buf.setNumber(NumberFormat.UInt16BE, 0, reg)
         buf.setNumber(NumberFormat.UInt32BE, 2, d)

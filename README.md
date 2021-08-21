@@ -3,7 +3,7 @@
 > Open this page at [https://healthywalk.github.io/vl53l1x-microbit/](https://healthywalk.github.io/vl53l1x-microbit/)
 
 ## Summary
-This extension supports the __STMicroelectronics VL53L1X__ time-of-flight ranging sensor in __Microbit MakeCode__ programming.
+This extension supports the __VL53L1X__ time-of-flight ranging sensor in __Microbit MakeCode__ programming.
 
 ## Pin connection
 
