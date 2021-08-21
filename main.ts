@@ -1,3 +1,8 @@
+//This extension can be used for the education field and hobbies.
+//Most of the functionality of this extension is based on the VL53L1X 
+//library for Arduino provided by pololu, and the register adress names 
+//and variable names are quoted from the library.
+
 /**
 * VL53L1X block
 */
@@ -21,7 +26,7 @@ namespace VL53L1X {
         RangeValidNoWrapCheckFail = 6,
         WrapTargetFail = 7,
         XtalkSignalFail = 9,
-        SynchronizationInt = 10, // (the API spells this "syncronisation")
+        SynchronizationInt = 10,
         MinRangeFail = 13,
         None = 255,
     }
@@ -79,18 +84,15 @@ namespace VL53L1X {
     const PHASECAL_RESULT__VCSEL_START = 0x00D8
     const RESULT__OSC_CALIBRATE_VAL = 0x00DE
     const FIRMWARE__SYSTEM_STATUS = 0x00E5
-    const IDENTIFICATION__MODEL_ID = 0x010F
     const TargetRate = 0x0A00
     const TimingGuard = 4528
     const i2cAddr = 0x29
     const io_timeout = 500
 
     let calibrated: boolean = false
-    //let distance_mode: DistanceMode = DistanceMode.Unknown
     let fast_osc_frequency = 1
     let saved_vhv_init = 0
     let saved_vhv_timeout = 0
-    let did_timeout = false
     let results: ResultBuffer = {
         range_status:0,
         stream_count:0,
@@ -108,9 +110,6 @@ namespace VL53L1X {
      */
     //% blockId="VL53L1X_INITIALIZE" block="init vl53l1x"
     export function init(): void {
-        if (readReg16Bit(IDENTIFICATION__MODEL_ID) != 0xEACC) {
-            return
-        }
         writeReg(SOFT_RESET, 0x00)
         basic.pause(1)
         writeReg(SOFT_RESET, 0x01)
@@ -118,7 +117,6 @@ namespace VL53L1X {
         startTimeout()
         while ((readReg(FIRMWARE__SYSTEM_STATUS) & 0x01) == 0) {
             if (checkTimeoutExpired()) {
-                did_timeout = true
                 return
             }
         }
@@ -144,7 +142,7 @@ namespace VL53L1X {
 
         writeReg(SYSTEM__GROUPED_PARAMETER_HOLD_0, 0x01)
         writeReg(SYSTEM__GROUPED_PARAMETER_HOLD_1, 0x01)
-        writeReg(SD_CONFIG__QUANTIFIER, 2); // tuning parm default
+        writeReg(SD_CONFIG__QUANTIFIER, 2) // tuning parm default
 
         writeReg(SYSTEM__GROUPED_PARAMETER_HOLD, 0x00)
         writeReg(SYSTEM__SEED_CONFIG, 1) // tuning parm default
@@ -177,7 +175,6 @@ namespace VL53L1X {
         let phasecal_timeout_mclks = timeoutMicrosecondsToMclks(1000, macro_period_us)
         if (phasecal_timeout_mclks > 0xFF) { phasecal_timeout_mclks = 0xFF }
         writeReg(PHASECAL_CONFIG__TIMEOUT_MACROP, phasecal_timeout_mclks)
-
         writeReg16Bit(MM_CONFIG__TIMEOUT_MACROP_A, encodeTimeout(
             timeoutMicrosecondsToMclks(1, macro_period_us)));
         writeReg16Bit(RANGE_CONFIG__TIMEOUT_MACROP_A, encodeTimeout(
@@ -191,23 +188,22 @@ namespace VL53L1X {
     }
 
     function read(): number {
-        startTimeout();
+        startTimeout()
         while (!dataReady()) {
             if (checkTimeoutExpired()) {
-                did_timeout = true;
-                return 0;
+                return 0
             }
         }
-        readResults();
+        readResults()
         if (!calibrated) {
-            setupManualCalibration();
-            calibrated = true;
+            setupManualCalibration()
+            calibrated = true
         }
         updateDSS();
         let range = results.final_crosstalk_corrected_range_mm_sd0
         ranging_data.range_mm = Math.floor((range * 2011 + 0x0400) / 0x0800)
-        writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01); // sys_interrupt_clear_range
-        return ranging_data.range_mm;
+        writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01) // sys_interrupt_clear_range
+        return ranging_data.range_mm
     }
 
     /**
@@ -215,9 +211,9 @@ namespace VL53L1X {
      */
     //% blockId="VL53L1X_DISTANCE" block="distance"
     export function readSingle(): number {
-        writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01); // sys_interrupt_clear_range
-        writeReg(SYSTEM__MODE_START, 0x10); // mode_range__single_shot
-        return read();
+        writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01) // sys_interrupt_clear_range
+        writeReg(SYSTEM__MODE_START, 0x10) // mode_range__single_shot
+        return read()
     }
 
     //% blockId="STRING_DISTANCE" block="s_distance"
@@ -230,12 +226,12 @@ namespace VL53L1X {
     }
     
     function setupManualCalibration(): void {
-        saved_vhv_init = readReg(VHV_CONFIG__INIT);
-        saved_vhv_timeout = readReg(VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND);
-        writeReg(VHV_CONFIG__INIT, saved_vhv_init & 0x7F);
+        saved_vhv_init = readReg(VHV_CONFIG__INIT)
+        saved_vhv_timeout = readReg(VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND)
+        writeReg(VHV_CONFIG__INIT, saved_vhv_init & 0x7F)
         writeReg(VHV_CONFIG__TIMEOUT_MACROP_LOOP_BOUND,
-            (saved_vhv_timeout & 0x03) + (3 << 2)); // tuning parm default (LOWPOWERAUTO_VHV_LOOP_BOUND_DEFAULT)
-        writeReg(PHASECAL_CONFIG__OVERRIDE, 0x01);
+            (saved_vhv_timeout & 0x03) + (3 << 2)) // tuning parm default (LOWPOWERAUTO_VHV_LOOP_BOUND_DEFAULT)
+        writeReg(PHASECAL_CONFIG__OVERRIDE, 0x01)
         writeReg(CAL_CONFIG__VCSEL_START, readReg(PHASECAL_RESULT__VCSEL_START));
     }
 
@@ -256,13 +252,13 @@ namespace VL53L1X {
             let totalRatePerSpad =
                 results.peak_signal_count_rate_crosstalk_corrected_mcps_sd0 +
                 results.ambient_count_rate_mcps_sd0
-            if (totalRatePerSpad > 0xFFFF) { totalRatePerSpad = 0xFFFF; }
-            totalRatePerSpad <<= 16;
+            if (totalRatePerSpad > 0xFFFF) { totalRatePerSpad = 0xFFFF }
+            totalRatePerSpad <<= 16
             totalRatePerSpad = Math.floor(totalRatePerSpad / spadCount)
             if (totalRatePerSpad != 0) {
                 let requiredSpads = Math.floor((TargetRate << 16) / totalRatePerSpad)
-                if (requiredSpads > 0xFFFF || requiredSpads<0) { requiredSpads = 0xFFFF; }
-                writeReg16Bit(DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT, requiredSpads);
+                if (requiredSpads > 0xFFFF || requiredSpads<0) { requiredSpads = 0xFFFF }
+                writeReg16Bit(DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT, requiredSpads)
                 return;
             }
         }
@@ -270,7 +266,7 @@ namespace VL53L1X {
     }
 
     function writeReg(reg: number, d: number): void {
-        let buf = pins.createBuffer(3);
+        let buf = pins.createBuffer(3)
         buf.setNumber(NumberFormat.UInt16BE, 0, reg)
         buf.setNumber(NumberFormat.UInt8BE, 2, d)
         pins.i2cWriteBuffer(i2cAddr, buf, false)
@@ -282,7 +278,7 @@ namespace VL53L1X {
     }
 
     function writeReg32Bit(reg: number, d: number): void {
-        let buf = pins.createBuffer(6);
+        let buf = pins.createBuffer(6)
         buf.setNumber(NumberFormat.UInt16BE, 0, reg)
         buf.setNumber(NumberFormat.UInt32BE, 2, d)
         pins.i2cWriteBuffer(i2cAddr, buf, false)
@@ -326,18 +322,17 @@ namespace VL53L1X {
     }
 
     function calcMacroPeriod(vcsel_period: number): number {
-        let pll_period_us = Math.floor((0x01 << 30) / fast_osc_frequency);
-        let vcsel_period_pclks = (vcsel_period + 1) << 1;
+        let pll_period_us = Math.floor((0x01 << 30) / fast_osc_frequency)
+        let vcsel_period_pclks = (vcsel_period + 1) << 1
 
-        let macro_period_us = 2304 * pll_period_us;
-        macro_period_us >>= 6;
-        macro_period_us *= vcsel_period_pclks;
-        macro_period_us >>= 6;
-        return macro_period_us;
+        let macro_period_us = 2304 * pll_period_us
+        macro_period_us >>= 6
+        macro_period_us *= vcsel_period_pclks
+        macro_period_us >>= 6
+        return macro_period_us
     }
 
     function startTimeout(): void {
-        //timeout_start_ms = millis()
         timeout_start_ms = input.runningTime()
     }
 
