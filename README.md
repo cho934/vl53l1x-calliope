@@ -36,6 +36,9 @@ VL53L1X.readSingle()
 VL53L1X.stringDistance()
 ```
 
+* When the sensor times out, the distance obtained will be zero.
+* If the measurement target is too far or the measurement cannot be performed correctly, the distance obtained will be 9999.
+
 ## Example
 ```blocks
 VL53L1X.init()
