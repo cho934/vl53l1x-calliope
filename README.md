@@ -8,7 +8,7 @@ The extension is available for almost all __VL53L1X__ breakouts.
 
 ## Pin connection
 
-Microbit | VL53L1X breakout
+micro:bit | VL53L1X breakout
 :--------: | :---------:
 P19  |  SCL
 P20  |  SDA
