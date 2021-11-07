@@ -3,7 +3,8 @@
 > Open this page at [https://healthywalk.github.io/vl53l1x-microbit/](https://healthywalk.github.io/vl53l1x-microbit/)
 
 ## Summary
-This extension supports the __VL53L1X__ time-of-flight ranging sensor in __Microbit MakeCode__ programming.
+This extension supports the __VL53L1X__ time-of-flight ranging sensor in __micro:bit MakeCode__ programming.  
+The extension is available for almost all __VL53L1X__ breakouts.
 
 ## Pin connection
 
@@ -26,7 +27,7 @@ NC  |  GPIO1
 VL53L1X.init()
 ```
 
-* Get Distance as Number
+* Get Distance as Number(mm)
 ```
 VL53L1X.readSingle()
 ```
