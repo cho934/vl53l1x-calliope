@@ -1,7 +1,7 @@
 {
-    "name": "vl53l1x-microbit",
+    "name": "vl53l1x-calliopemini",
     "version": "0.0.1",
-    "description": "VL53L1X Time-of-Flight ranging sensor in Microbit MakeCode",
+    "description": "VL53L1X Time-of-Flight ranging sensor for Calliope mini and MakeCode",
     "dependencies": {
         "core": "*"
     },
@@ -14,10 +14,10 @@
     ],
     "targetVersions": {
         "target": "4.0.16",
-        "targetId": "microbit"
+        "targetId": "calliopemini"
     },
     "supportedTargets": [
-        "microbit"
+        "calliopemini"
     ],
     "preferredEditor": "tsprj"
 }

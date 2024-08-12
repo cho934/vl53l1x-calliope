@@ -16,6 +16,7 @@ namespace VL53L1X {
         final_crosstalk_corrected_range_mm_sd0: number
         peak_signal_count_rate_crosstalk_corrected_mcps_sd0: number
     }
+	
     enum RangeStatus {
         RangeValid = 0,
         SigmaFail = 1,
@@ -30,6 +31,11 @@ namespace VL53L1X {
         MinRangeFail = 13,
         None = 255,
     }
+	
+	export enum  DistanceMode {
+		Short, Medium, Long
+	}
+
     type RangingData = {
         range_mm?: number
         range_status?: RangeStatus
@@ -149,22 +155,90 @@ namespace VL53L1X {
         writeReg(SYSTEM__SEQUENCE_CONFIG, 0x8B)
         writeReg16Bit(DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT, 200 << 8)
         writeReg(DSS_CONFIG__ROI_MODE_CONTROL, 2)
-        setLongDistanceMode()
+        setDistanceMode(Long)
         setMeasurementTimingBudget(50000)
         writeReg16Bit(ALGO__PART_TO_PART_RANGE_OFFSET_MM,
             readReg16Bit(MM_CONFIG__OUTER_OFFSET_MM) * 4)
     }
 
-    function setLongDistanceMode(): void {
-        writeReg(RANGE_CONFIG__VCSEL_PERIOD_A, 0x0F)
-        writeReg(RANGE_CONFIG__VCSEL_PERIOD_B, 0x0D)
-        writeReg(RANGE_CONFIG__VALID_PHASE_HIGH, 0xB8)
-        writeReg(SD_CONFIG__WOI_SD0, 0x0F)
-        writeReg(SD_CONFIG__WOI_SD1, 0x0D)
-        writeReg(SD_CONFIG__INITIAL_PHASE_SD0, 14)
-        writeReg(SD_CONFIG__INITIAL_PHASE_SD1, 14)
-    }
+    /**
+     * Set distance mode of the sensor to Short, Medium, or Long
+	 * More details: 
+	 * STM Datasheet
+	 * https://wolles-elektronikkiste.de/vl53l0x-und-vl53l1x-tof-abstandssensoren
+	 */
+    //% blockId="VL53L1X_SET_DISTANCE_MODE" block="set distance mode %mode"
+	export function setDistanceMode(mode: DistanceMode): void {
+		switch (mode)
+			{
+			case Short:
+			  // from VL53L1_preset_mode_standard_ranging_short_range()
 
+			  // timing config
+			  writeReg(RANGE_CONFIG__VCSEL_PERIOD_A, 0x07);
+			  writeReg(RANGE_CONFIG__VCSEL_PERIOD_B, 0x05);
+			  writeReg(RANGE_CONFIG__VALID_PHASE_HIGH, 0x38);
+
+			  // dynamic config
+			  writeReg(SD_CONFIG__WOI_SD0, 0x07);
+			  writeReg(SD_CONFIG__WOI_SD1, 0x05);
+			  writeReg(SD_CONFIG__INITIAL_PHASE_SD0, 6); // tuning parm default
+			  writeReg(SD_CONFIG__INITIAL_PHASE_SD1, 6); // tuning parm default
+
+			  break;
+
+			case Medium:
+			  // from VL53L1_preset_mode_standard_ranging()
+
+			  // timing config
+			  writeReg(RANGE_CONFIG__VCSEL_PERIOD_A, 0x0B);
+			  writeReg(RANGE_CONFIG__VCSEL_PERIOD_B, 0x09);
+			  writeReg(RANGE_CONFIG__VALID_PHASE_HIGH, 0x78);
+
+			  // dynamic config
+			  writeReg(SD_CONFIG__WOI_SD0, 0x0B);
+			  writeReg(SD_CONFIG__WOI_SD1, 0x09);
+			  writeReg(SD_CONFIG__INITIAL_PHASE_SD0, 10); // tuning parm default
+			  writeReg(SD_CONFIG__INITIAL_PHASE_SD1, 10); // tuning parm default
+
+			  break;
+
+			case Long: // long
+			  // from VL53L1_preset_mode_standard_ranging_long_range()
+
+			  // timing config
+			  writeReg(RANGE_CONFIG__VCSEL_PERIOD_A, 0x0F);
+			  writeReg(RANGE_CONFIG__VCSEL_PERIOD_B, 0x0D);
+			  writeReg(RANGE_CONFIG__VALID_PHASE_HIGH, 0xB8);
+
+			  // dynamic config
+			  writeReg(SD_CONFIG__WOI_SD0, 0x0F);
+			  writeReg(SD_CONFIG__WOI_SD1, 0x0D);
+			  writeReg(SD_CONFIG__INITIAL_PHASE_SD0, 14); // tuning parm default
+			  writeReg(SD_CONFIG__INITIAL_PHASE_SD1, 14); // tuning parm default
+
+			  break;
+
+			default:
+			  // unrecognized mode - do nothing
+			  return false;
+			}
+
+		// reapply timing budget
+		setMeasurementTimingBudget(50000);
+
+		return true;
+	}
+
+    /**
+     * Set maximum time permitted for the sensor to return a distance value
+	 * 20 ms is the minimum timing budget and can be used only in Short distance mode.
+	 * 33 ms is the minimum timing budget which can work for all distance modes.
+	 * 140 ms is the timing budget which allows the maximum distance to be reached under Long distance mode
+	 * 1000ms is the maximum value
+     */
+    //% blockId="VL53L1X_SET_TIMING_BUDGET" block="set timing budget %budget_us"
+	//% budget_us.min=20000 budget_us.max=1000000 v.defl=50000
     function setMeasurementTimingBudget(budget_us: number): boolean {
         if (budget_us <= TimingGuard) { return false }
         budget_us -= TimingGuard
@@ -208,15 +282,18 @@ namespace VL53L1X {
     }
 
     /**
-     * Read Distance
+     * Read Distance as number in units of milimeter
      */
-    //% blockId="VL53L1X_DISTANCE" block="distance"
+    //% blockId="NUMBER_DISTANCE" block="distance"
     export function readSingle(): number {
         writeReg(SYSTEM__INTERRUPT_CLEAR, 0x01)
         writeReg(SYSTEM__MODE_START, 0x10)
         return read()
     }
 
+    /**
+     * Read Distance as formated string including units
+     */
     //% blockId="STRING_DISTANCE" block="s_distance"
     export function stringDistance(): string {
         let d = readSingle()
