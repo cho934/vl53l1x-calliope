@@ -33,7 +33,7 @@ namespace VL53L1X {
     }
 	
 	export enum  DistanceMode {
-		Short, Medium, Long
+		Short, Medium, Long,
 	}
 
     type RangingData = {
@@ -155,7 +155,7 @@ namespace VL53L1X {
         writeReg(SYSTEM__SEQUENCE_CONFIG, 0x8B)
         writeReg16Bit(DSS_CONFIG__MANUAL_EFFECTIVE_SPADS_SELECT, 200 << 8)
         writeReg(DSS_CONFIG__ROI_MODE_CONTROL, 2)
-        setDistanceMode(Long)
+        setDistanceMode(DistanceMode.Long)
         setMeasurementTimingBudget(50000)
         writeReg16Bit(ALGO__PART_TO_PART_RANGE_OFFSET_MM,
             readReg16Bit(MM_CONFIG__OUTER_OFFSET_MM) * 4)
@@ -171,7 +171,7 @@ namespace VL53L1X {
 	export function setDistanceMode(mode: DistanceMode): void {
 		switch (mode)
 			{
-			case Short:
+            case DistanceMode.Short:
 			  // from VL53L1_preset_mode_standard_ranging_short_range()
 
 			  // timing config
@@ -187,7 +187,7 @@ namespace VL53L1X {
 
 			  break;
 
-			case Medium:
+            case DistanceMode.Medium:
 			  // from VL53L1_preset_mode_standard_ranging()
 
 			  // timing config
@@ -203,7 +203,7 @@ namespace VL53L1X {
 
 			  break;
 
-			case Long: // long
+            case DistanceMode.Long: // long
 			  // from VL53L1_preset_mode_standard_ranging_long_range()
 
 			  // timing config
@@ -221,13 +221,10 @@ namespace VL53L1X {
 
 			default:
 			  // unrecognized mode - do nothing
-			  return false;
 			}
 
 		// reapply timing budget
 		setMeasurementTimingBudget(50000);
-
-		return true;
 	}
 
     /**
@@ -239,11 +236,11 @@ namespace VL53L1X {
      */
     //% blockId="VL53L1X_SET_TIMING_BUDGET" block="set timing budget %budget_us"
 	//% budget_us.min=20000 budget_us.max=1000000 v.defl=50000
-    function setMeasurementTimingBudget(budget_us: number): boolean {
-        if (budget_us <= TimingGuard) { return false }
+    export function setMeasurementTimingBudget(budget_us: number): void {
+        if (budget_us <= TimingGuard) { return }
         budget_us -= TimingGuard
         let range_config_timeout_us = budget_us
-        if (range_config_timeout_us > 1100000) { return false }
+        if (range_config_timeout_us > 1100000) { return }
         range_config_timeout_us = Math.floor(range_config_timeout_us/2)
         let macro_period_us = calcMacroPeriod(readReg(RANGE_CONFIG__VCSEL_PERIOD_A))
         let phasecal_timeout_mclks = timeoutMicrosecondsToMclks(1000, macro_period_us)
@@ -258,7 +255,6 @@ namespace VL53L1X {
             timeoutMicrosecondsToMclks(1, macro_period_us)))
         writeReg16Bit(RANGE_CONFIG__TIMEOUT_MACROP_B, encodeTimeout(
             timeoutMicrosecondsToMclks(range_config_timeout_us, macro_period_us)))
-        return true
     }
 
     function read(): number {

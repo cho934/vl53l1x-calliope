@@ -13,7 +13,7 @@
         "test.ts"
     ],
     "targetVersions": {
-        "target": "4.0.16",
+        "target": "6.0.41",
         "targetId": "calliopemini"
     },
     "supportedTargets": [
