@@ -1,6 +1,6 @@
 {
     "name": "vl53l1x-calliopemini",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "VL53L1X Time-of-Flight ranging sensor for Calliope mini and MakeCode",
     "dependencies": {
         "core": "*"
